@@ -2,8 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { LayoutDashboard, UtensilsCrossed, Settings, Store, Bell } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { LayoutDashboard, UtensilsCrossed, Settings, Store, LogOut } from 'lucide-react';
+
 
 interface AdminNavbarProps {
   pendingCount?: number;
@@ -11,6 +12,12 @@ interface AdminNavbarProps {
 
 export const AdminNavbar: React.FC<AdminNavbarProps> = ({ pendingCount = 0 }) => {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch('/api/admin/logout', { method: 'POST' });
+    router.push('/admin/login');
+  };
 
   const navItems = [
     { label: 'ออเดอร์ & ภาพรวม', href: '/admin', icon: LayoutDashboard, badge: pendingCount },
@@ -66,6 +73,15 @@ export const AdminNavbar: React.FC<AdminNavbarProps> = ({ pendingCount = 0 }) =>
           >
             หน้าหน้าร้าน ↗
           </Link>
+
+          <button
+            onClick={handleLogout}
+            className="ml-1 flex items-center gap-1.5 text-xs font-bold text-red-400 hover:text-white hover:bg-red-600 bg-slate-800 px-3 py-2 rounded-xl transition-all"
+            title="ออกจากระบบ"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            ออกจากระบบ
+          </button>
         </nav>
       </div>
     </header>
