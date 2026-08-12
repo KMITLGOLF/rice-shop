@@ -35,6 +35,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [submittingOrder, setSubmittingOrder] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<any | null>(null);
   const [uploadedSlip, setUploadedSlip] = useState<string | null>(null);
+  const [slipFile, setSlipFile] = useState<{ base64: string; name: string; type: string } | null>(null);
 
   const totalAmount = cart.reduce((sum, item) => sum + item.menuItem.price * item.quantity, 0);
 
@@ -66,8 +67,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   }, [isOpen, totalAmount, promptpayId]);
 
   if (!isOpen) return null;
-
-  const [slipFile, setSlipFile] = useState<{ base64: string; name: string; type: string } | null>(null);
 
   const handleSimulatedSlipUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
