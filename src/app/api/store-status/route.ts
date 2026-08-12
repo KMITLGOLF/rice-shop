@@ -33,28 +33,42 @@ export async function PUT(req: Request) {
     const body = await req.json();
     const { status, closedMessage, promptpayId, promptpayName, storeName } = body;
 
-    const updated = await prisma.storeSetting.upsert({
+    // Check if record exists first (pgbouncer-safe pattern)
+    const existing = await prisma.storeSetting.findUnique({
       where: { id: 'default' },
-      update: {
-        ...(status && { status }),
-        ...(closedMessage !== undefined && { closedMessage }),
-        ...(promptpayId && { promptpayId }),
-        ...(promptpayName && { promptpayName }),
-        ...(storeName && { storeName }),
-      },
-      create: {
-        id: 'default',
-        storeName: storeName || "ร้านข้าวคุณแม่ (Mom's Rice Kitchen)",
-        status: status || 'OPEN',
-        closedMessage: closedMessage || 'ขออภัย วันนี้ร้านปิดให้บริการ',
-        promptpayId: promptpayId || '0812345678',
-        promptpayName: promptpayName || 'ร้านข้าวคุณแม่',
-      },
     });
+
+    let updated;
+    if (existing) {
+      updated = await prisma.storeSetting.update({
+        where: { id: 'default' },
+        data: {
+          ...(status && { status }),
+          ...(closedMessage !== undefined && { closedMessage }),
+          ...(promptpayId && { promptpayId }),
+          ...(promptpayName && { promptpayName }),
+          ...(storeName && { storeName }),
+        },
+      });
+    } else {
+      updated = await prisma.storeSetting.create({
+        data: {
+          id: 'default',
+          storeName: storeName || "ร้านข้าวคุณแม่ (Mom's Rice Kitchen)",
+          status: status || 'OPEN',
+          closedMessage: closedMessage || 'ขออภัย วันนี้ร้านปิดให้บริการ',
+          promptpayId: promptpayId || '0812345678',
+          promptpayName: promptpayName || 'ร้านข้าวคุณแม่',
+        },
+      });
+    }
 
     return NextResponse.json(updated);
   } catch (error) {
     console.error('Failed to update store settings:', error);
-    return NextResponse.json(defaultStoreSetting);
+    return NextResponse.json(
+      { error: 'Failed to update store settings', details: String(error) },
+      { status: 500 }
+    );
   }
 }
