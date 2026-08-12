@@ -144,7 +144,7 @@ export default function CustomerHomePage() {
       />
 
       {/* Main Container */}
-      <main className="max-w-4xl mx-auto w-full flex-1 px-4 pt-2">
+      <main className="max-w-4xl mx-auto w-full flex-1 px-3 sm:px-4 pt-2">
         {/* Store Closed / Holiday Banner Guard */}
         <StoreGuardBanner
           status={storeSetting.status}
@@ -152,28 +152,28 @@ export default function CustomerHomePage() {
         />
 
         {/* Hero Search & Title */}
-        <div className="my-4 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 rounded-3xl p-6 text-white shadow-lg shadow-orange-100 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="my-3 sm:my-4 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-white shadow-lg shadow-orange-100 flex flex-col gap-3">
           <div>
             <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-amber-100 inline-flex items-center gap-1">
               <Sparkles className="w-3.5 h-3.5" /> สั่งง่าย ได้ไว ไม่ต้องรอคิว
             </span>
-            <h2 className="text-2xl md:text-3xl font-black mt-2 leading-tight">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black mt-2 leading-tight">
               เมนูอร่อยเสิร์ฟร้อนสดใหม่ทุกวัน
             </h2>
-            <p className="text-xs md:text-sm text-orange-100 mt-1 font-medium">
-              เลือกเมนูที่คุณชื่นชอบ ชำระผ่าน PromptPay และรับคิวเข้า LINE OA ได้ทันที
+            <p className="text-xs sm:text-sm text-orange-100 mt-1 font-medium">
+              เลือกเมนู ชำระผ่าน PromptPay รับคิว LINE ได้ทันที
             </p>
           </div>
 
           {/* Search Box */}
-          <div className="relative w-full md:w-64">
+          <div className="relative w-full">
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="ค้นหาชื่ออาหาร..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full text-xs bg-white text-gray-800 rounded-2xl pl-9 pr-4 py-2.5 shadow-md focus:outline-none focus:ring-2 focus:ring-amber-300 font-medium"
+              className="w-full text-sm bg-white text-gray-800 rounded-xl pl-9 pr-4 py-3 shadow-md focus:outline-none focus:ring-2 focus:ring-amber-300 font-medium"
             />
           </div>
         </div>
@@ -201,7 +201,7 @@ export default function CustomerHomePage() {
               <p className="text-xs text-gray-400 mt-1">ลองค้นหาด้วยคำอื่น หรือเลือกหมวดหมู่อื่นดูนะครับ</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {filteredMenuItems.map((item) => (
                 <MenuCard
                   key={item.id}
@@ -217,19 +217,19 @@ export default function CustomerHomePage() {
 
       {/* Floating Bottom Cart Bar for Mobile */}
       {cartCount > 0 && (
-        <div className="fixed bottom-4 left-4 right-4 z-30 max-w-lg mx-auto">
+        <div className="fixed bottom-0 left-0 right-0 z-30 px-3 sm:px-4 pb-3 sm:pb-4 safe-bottom">
           <button
             onClick={() => setIsCartOpen(true)}
-            className="w-full bg-gradient-to-r from-orange-600 to-amber-600 text-white rounded-2xl p-4 shadow-xl shadow-orange-300 flex items-center justify-between font-bold hover:scale-[1.02] active:scale-98 transition-all border border-orange-400"
+            className="w-full max-w-lg mx-auto block bg-gradient-to-r from-orange-600 to-amber-600 text-white rounded-2xl p-3.5 sm:p-4 shadow-xl shadow-orange-300 flex items-center justify-between font-bold active:scale-[0.98] transition-all border border-orange-400"
           >
-            <div className="flex items-center gap-3">
-              <span className="bg-white text-orange-600 text-xs font-black w-7 h-7 rounded-full flex items-center justify-center shadow">
+            <div className="flex items-center gap-2.5">
+              <span className="bg-white text-orange-600 text-xs font-black w-7 h-7 rounded-full flex items-center justify-center shadow shrink-0">
                 {cartCount}
               </span>
-              <span className="text-sm">ดูรายการในตะกร้า</span>
+              <span className="text-sm font-bold">ดูรายการในตะกร้า</span>
             </div>
-            <div className="text-base font-black">
-              ฿{cart.reduce((s, i) => s + i.menuItem.price * i.quantity, 0).toFixed(2)} →
+            <div className="text-sm sm:text-base font-black">
+              ฿{cart.reduce((s, i) => s + i.menuItem.price * i.quantity, 0).toFixed(0)} →
             </div>
           </button>
         </div>

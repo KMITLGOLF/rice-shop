@@ -8,6 +8,15 @@ body {
   font-family: 'Prompt', sans-serif;
   background-color: #f8fafc;
   color: #1e293b;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Safe area for notch phones (iPhone X+) */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Hide scrollbar for clean horizontal tabs */
@@ -17,4 +26,9 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
 }
