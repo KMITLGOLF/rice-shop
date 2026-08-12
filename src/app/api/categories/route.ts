@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 const defaultCategories = [
   { id: 'cat-1', name: 'อาหารจานเดียว (Rice Dishes)', sortOrder: 1 },
   { id: 'cat-2', name: 'เมนูก๋วยเตี๋ยว & เส้น (Noodles)', sortOrder: 2 },

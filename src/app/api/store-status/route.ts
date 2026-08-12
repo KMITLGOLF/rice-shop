@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 const defaultStoreSetting = {
   id: 'default',
   storeName: "ร้านข้าวคุณแม่ (Mom's Rice Kitchen)",
