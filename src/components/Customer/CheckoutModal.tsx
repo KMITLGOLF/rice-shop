@@ -67,12 +67,25 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
   if (!isOpen) return null;
 
+  const [slipFile, setSlipFile] = useState<{ base64: string; name: string; type: string } | null>(null);
+
   const handleSimulatedSlipUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const reader = new FileReader();
       reader.onload = (event) => {
-        setUploadedSlip(event.target?.result as string);
+        const base64 = event.target?.result as string;
+        setUploadedSlip(base64);
+        
+        // Generate unique filename
+        const extension = file.name.split('.').pop() || 'jpg';
+        const uniqueName = `slip-${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${extension}`;
+        
+        setSlipFile({
+          base64,
+          name: uniqueName,
+          type: file.type
+        });
       };
       reader.readAsDataURL(file);
     }
@@ -86,6 +99,29 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
     setSubmittingOrder(true);
     try {
+      let finalSlipUrl = null;
+
+      // Upload slip to Supabase first if a slip file is selected
+      if (slipFile) {
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileBase64: slipFile.base64,
+            fileName: slipFile.name,
+            fileType: slipFile.type
+          })
+        });
+
+        if (!uploadRes.ok) {
+          const uploadError = await uploadRes.json();
+          throw new Error(uploadError.error || 'Failed to upload payment slip');
+        }
+
+        const uploadData = await uploadRes.json();
+        finalSlipUrl = uploadData.url;
+      }
+
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -95,7 +131,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           lineUserId: profile?.userId || null,
           note: orderNote.trim(),
           totalAmount,
-          slipUrl: uploadedSlip || 'PROMPTPAY_VERIFIED',
+          slipUrl: finalSlipUrl || 'PROMPTPAY_VERIFIED',
           items: cart.map((item) => ({
             menuItemId: item.menuItem.id,
             itemName: item.menuItem.name,

@@ -115,6 +115,16 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onUpdateStatus, onU
           </div>
           <div className="flex items-center gap-2">
             {getPaymentBadge(order.paymentStatus)}
+            {order.slipUrl && order.slipUrl.startsWith('http') && (
+              <a
+                href={order.slipUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] bg-blue-600 hover:bg-blue-700 text-white font-bold px-2 py-0.5 rounded transition-colors"
+              >
+                ดูสลิป
+              </a>
+            )}
             {order.paymentStatus === 'VERIFYING' && (
               <button
                 onClick={() => onUpdatePayment(order.id, 'PAID')}
