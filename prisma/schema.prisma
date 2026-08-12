@@ -1,0 +1,81 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model StoreSetting {
+  id              String   @id @default("default")
+  storeName       String   @default("ร้านข้าวคุณแม่ (Mom's Rice Kitchen)")
+  status          String   @default("OPEN") // OPEN | CLOSED | HOLIDAY
+  closedMessage   String   @default("ขออภัย วันนี้ร้านปิดให้บริการ จะกลับมาเปิดใหม่อีกครั้งพรุ่งนี้ครับ")
+  promptpayId     String   @default("0812345678")
+  promptpayName   String   @default("ร้านข้าวคุณแม่")
+  updatedAt       DateTime @updatedAt
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String
+  sortOrder Int        @default(0)
+  items     MenuItem[]
+  createdAt DateTime   @default(now())
+}
+
+model MenuItem {
+  id            String      @id @default(cuid())
+  name          String
+  description   String?
+  price         Float
+  imageUrl      String
+  categoryId    String
+  category      Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  isAvailable   Boolean     @default(true)
+  isRecommended Boolean     @default(false)
+  orderItems    OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model User {
+  id          String   @id @default(cuid())
+  lineUserId  String?  @unique
+  displayName String
+  pictureUrl  String?
+  phone       String?
+  orders      Order[]
+  createdAt   DateTime @default(now())
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  queueNumber   String      // e.g. "A-001"
+  userId        String?
+  user          User?       @relation(fields: [userId], references: [id])
+  customerName  String
+  customerPhone String?
+  totalAmount   Float
+  status        String      @default("PENDING") // PENDING | PREPARING | READY | COMPLETED | CANCELLED
+  paymentStatus String      @default("UNPAID")  // UNPAID | VERIFYING | PAID | FAILED
+  slipUrl       String?
+  note          String?
+  items         OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model OrderItem {
+  id             String   @id @default(cuid())
+  orderId        String
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId     String
+  menuItem       MenuItem @relation(fields: [menuItemId], references: [id])
+  itemName       String
+  price          Float
+  quantity       Int
+  specialRequest String?
+}

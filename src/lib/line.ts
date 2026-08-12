@@ -1,0 +1,177 @@
+/**
+ * LINE Messaging API helper for pushing order confirmations & queue updates to customers
+ */
+
+interface OrderDetails {
+  queueNumber: string;
+  customerName: string;
+  totalAmount: number;
+  items: Array<{ itemName: string; quantity: number; price: number }>;
+  paymentStatus: string;
+}
+
+export async function sendLineOrderNotification(
+  lineUserId: string,
+  orderDetails: OrderDetails
+): Promise<{ success: boolean; error?: string }> {
+  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+
+  // Log notification to console if LINE token is not set (Local Development Mode)
+  if (!token || token === 'YOUR_LINE_CHANNEL_ACCESS_TOKEN') {
+    console.log(`[LINE OA Notification Simulator] Pushed to User ID: ${lineUserId}`);
+    console.log(`[Queue ${orderDetails.queueNumber}] Total: ฿${orderDetails.totalAmount}`);
+    return { success: true };
+  }
+
+  const flexMessage = {
+    type: 'flex',
+    altText: `ยืนยันคำสั่งซื้อ คิวที่ ${orderDetails.queueNumber}`,
+    contents: {
+      type: 'bubble',
+      size: 'mega',
+      header: {
+        type: 'box',
+        layout: 'vertical',
+        backgroundColor: '#ea580c',
+        contents: [
+          {
+            type: 'text',
+            text: 'ร้านข้าวคุณแม่',
+            color: '#FFFFFF',
+            weight: 'bold',
+            size: 'sm',
+          },
+          {
+            type: 'text',
+            text: `คิวของคุณ: ${orderDetails.queueNumber}`,
+            color: '#FFFFFF',
+            weight: 'bold',
+            size: 'xxl',
+            margin: 'md',
+          },
+          {
+            type: 'text',
+            text: 'รับรายการสั่งซื้อเรียบร้อยแล้ว',
+            color: '#FFEDD5',
+            size: 'xs',
+            margin: 'xs',
+          },
+        ],
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'text',
+            text: `คุณ ${orderDetails.customerName}`,
+            weight: 'bold',
+            size: 'md',
+          },
+          {
+            type: 'separator',
+            margin: 'md',
+          },
+          {
+            type: 'box',
+            layout: 'vertical',
+            margin: 'md',
+            spacing: 'sm',
+            contents: orderDetails.items.map((item) => ({
+              type: 'box',
+              layout: 'horizontal',
+              contents: [
+                {
+                  type: 'text',
+                  text: `${item.itemName} x${item.quantity}`,
+                  size: 'sm',
+                  color: '#555555',
+                  flex: 4,
+                },
+                {
+                  type: 'text',
+                  text: `฿${item.price * item.quantity}`,
+                  size: 'sm',
+                  color: '#111111',
+                  align: 'end',
+                  flex: 2,
+                },
+              ],
+            })),
+          },
+          {
+            type: 'separator',
+            margin: 'lg',
+          },
+          {
+            type: 'box',
+            layout: 'horizontal',
+            margin: 'md',
+            contents: [
+              {
+                type: 'text',
+                text: 'ราคารวมทั้งสิ้น',
+                weight: 'bold',
+                size: 'md',
+              },
+              {
+                type: 'text',
+                text: `฿${orderDetails.totalAmount.toFixed(2)}`,
+                weight: 'bold',
+                size: 'xl',
+                color: '#ea580c',
+                align: 'end',
+              },
+            ],
+          },
+          {
+            type: 'box',
+            layout: 'horizontal',
+            margin: 'sm',
+            contents: [
+              {
+                type: 'text',
+                text: 'สถานะการชำระเงิน',
+                size: 'xs',
+                color: '#888888',
+              },
+              {
+                type: 'text',
+                text: orderDetails.paymentStatus === 'PAID' ? 'ชำระเงินเสร็จสิ้น ✓' : 'รอการตรวจสอบ',
+                size: 'xs',
+                color: orderDetails.paymentStatus === 'PAID' ? '#16a34a' : '#ea580c',
+                align: 'end',
+                weight: 'bold',
+              },
+            ],
+          },
+        ],
+      },
+    },
+  };
+
+  try {
+    const res = await fetch('https://api.line.me/v2/bot/message/push', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        to: lineUserId,
+        messages: [flexMessage],
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      console.error('LINE Push API error:', err);
+      return { success: false, error: JSON.stringify(err) };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to send LINE notification:', error);
+    return { success: false, error: String(error) };
+  }
+}
