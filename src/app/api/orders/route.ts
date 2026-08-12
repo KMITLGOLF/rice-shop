@@ -75,6 +75,11 @@ export async function POST(req: Request) {
       }
     }
 
+    let initialPaymentStatus = 'UNPAID';
+    if (slipUrl && slipUrl.startsWith('http')) {
+      initialPaymentStatus = 'VERIFYING';
+    }
+
     // 4. Create Order & Items
     const order = await prisma.order.create({
       data: {
@@ -84,7 +89,7 @@ export async function POST(req: Request) {
         customerPhone: customerPhone || '',
         totalAmount: parseFloat(totalAmount),
         note: note || '',
-        paymentStatus: slipUrl ? 'VERIFYING' : 'PAID', // Slip uploaded or immediate payment
+        paymentStatus: initialPaymentStatus,
         slipUrl: slipUrl || null,
         status: 'PENDING',
         items: {

@@ -69,15 +69,17 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onUpdateStatus, onU
     }
   };
 
-  const getPaymentBadge = (status: string) => {
-    switch (status) {
-      case 'PAID':
-        return <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">✓ จ่ายแล้ว (Paid)</span>;
-      case 'VERIFYING':
-        return <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">🔍 ตรวจสอบสลิป</span>;
-      default:
-        return <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-200">ยังไม่จ่าย</span>;
+  const getPaymentBadge = (status: string, slipUrl?: string | null) => {
+    if (status === 'PAID') {
+      return <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">✓ จ่ายแล้ว (Paid)</span>;
     }
+    if (status === 'VERIFYING') {
+      return <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">🔍 ตรวจสอบสลิป</span>;
+    }
+    if (slipUrl === 'CASH_PAYMENT') {
+      return <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">💵 จ่ายเงินสดหน้าร้าน</span>;
+    }
+    return <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-200">ยังไม่จ่าย (รอโอน)</span>;
   };
 
   const formattedTime = new Date(order.createdAt).toLocaleTimeString('th-TH', {
@@ -115,7 +117,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onUpdateStatus, onU
             )}
           </div>
           <div className="flex items-center gap-2">
-            {getPaymentBadge(order.paymentStatus)}
+            {getPaymentBadge(order.paymentStatus, order.slipUrl)}
             {order.slipUrl && order.slipUrl.startsWith('http') && (
               <a
                 href={order.slipUrl}
@@ -131,7 +133,15 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onUpdateStatus, onU
                 onClick={() => onUpdatePayment(order.id, 'PAID')}
                 className="text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2 py-0.5 rounded transition-colors"
               >
-                ยืนยันการจ่าย
+                ยืนยันการโอน
+              </button>
+            )}
+            {order.paymentStatus === 'UNPAID' && order.slipUrl === 'CASH_PAYMENT' && (
+              <button
+                onClick={() => onUpdatePayment(order.id, 'PAID')}
+                className="text-[11px] bg-blue-600 hover:bg-blue-700 text-white font-bold px-2 py-0.5 rounded transition-colors"
+              >
+                รับเงินสดแล้ว
               </button>
             )}
           </div>
