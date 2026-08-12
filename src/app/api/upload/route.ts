@@ -32,6 +32,7 @@ export async function POST(req: Request) {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${supabaseKey}`,
+        'apikey': supabaseKey,
         'Content-Type': fileType || 'image/jpeg',
         'x-upsert': 'true',
       },
