@@ -20,6 +20,7 @@ export interface OrderData {
   status: 'PENDING' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED';
   paymentStatus: 'UNPAID' | 'VERIFYING' | 'PAID' | 'FAILED';
   note?: string | null;
+  slipUrl?: string | null;
   items: OrderItemData[];
   createdAt: string;
 }
