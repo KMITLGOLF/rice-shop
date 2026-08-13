@@ -16,9 +16,11 @@ export function middleware(request: NextRequest) {
   // Protect all /admin routes
   if (pathname.startsWith('/admin')) {
     const session = request.cookies.get('admin_session');
-    const secret = process.env.NEXTAUTH_SECRET || 'default_secret';
+    const secret = process.env.NEXTAUTH_SECRET;
 
-    if (!session || session.value !== secret) {
+    // Never accept a fallback session value. This also invalidates old cookies
+    // created before NEXTAUTH_SECRET was configured.
+    if (!secret || !session || session.value !== secret) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }

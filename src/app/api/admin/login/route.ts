@@ -6,10 +6,10 @@ export async function POST(req: Request) {
   try {
     const { password } = await req.json();
     const adminPassword = process.env.ADMIN_PASSWORD;
-    const secret = process.env.NEXTAUTH_SECRET || 'default_secret';
+    const secret = process.env.NEXTAUTH_SECRET;
 
-    if (!adminPassword) {
-      return NextResponse.json({ error: 'Admin password not configured' }, { status: 500 });
+    if (!adminPassword || !secret) {
+      return NextResponse.json({ error: 'Admin authentication is not configured' }, { status: 500 });
     }
 
     if (password !== adminPassword) {
