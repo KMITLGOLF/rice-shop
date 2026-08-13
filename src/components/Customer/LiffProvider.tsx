@@ -87,9 +87,18 @@ export const LiffProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     import('@line/liff').then((liffModule) => {
-      // When the page is launched as a LIFF app, LINE uses this URL to return
-      // the customer to the same page after completing login in the LINE app.
-      liffModule.default.login({ redirectUri: window.location.href });
+      const liff = liffModule.default;
+
+      // When opened from Safari or another external browser, enter through the
+      // LIFF universal link. On iPhone this hands off to the LINE application.
+      if (!liff.isInClient()) {
+        window.location.assign(`https://liff.line.me/${liffId}`);
+        return;
+      }
+
+      // Inside the LINE app, return the customer to their current page after
+      // LINE completes authentication.
+      liff.login({ redirectUri: window.location.href });
     });
   };
 
