@@ -90,9 +90,11 @@ export const LiffProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const liff = liffModule.default;
 
       // When opened from Safari or another external browser, enter through the
-      // LIFF universal link. On iPhone this hands off to the LINE application.
+      // LIFF universal link. Preserve the current route so customers return to
+      // the same page (including Live Tracker) after LINE authentication.
       if (!liff.isInClient()) {
-        window.location.assign(`https://liff.line.me/${liffId}`);
+        const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+        window.location.assign(`https://liff.line.me/${liffId}${currentPath}`);
         return;
       }
 
