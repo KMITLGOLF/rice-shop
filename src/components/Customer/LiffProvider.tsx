@@ -87,7 +87,9 @@ export const LiffProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     import('@line/liff').then((liffModule) => {
-      liffModule.default.login();
+      // When the page is launched as a LIFF app, LINE uses this URL to return
+      // the customer to the same page after completing login in the LINE app.
+      liffModule.default.login({ redirectUri: window.location.href });
     });
   };
 
