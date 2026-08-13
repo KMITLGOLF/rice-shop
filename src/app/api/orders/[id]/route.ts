@@ -39,7 +39,11 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     });
 
     if (status && updated.user?.lineUserId) {
-      const trackerUrl = new URL(`/order/${updated.id}`, req.url).toString();
+      const orderPath = `/order/${updated.id}`;
+      const liffId = process.env.NEXT_PUBLIC_LIFF_ID;
+      const trackerUrl = liffId
+        ? `https://liff.line.me/${liffId}${orderPath}`
+        : new URL(orderPath, req.url).toString();
       await sendLineOrderStatusNotification(updated.user.lineUserId, {
         queueNumber: updated.queueNumber,
         status: updated.status,

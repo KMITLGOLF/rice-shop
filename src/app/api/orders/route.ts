@@ -138,12 +138,18 @@ export async function POST(req: Request) {
 
     // 5. Send automated LINE Official Account Notification if lineUserId exists
     if (lineUserId) {
+      const orderPath = `/order/${order.id}`;
+      const liffId = process.env.NEXT_PUBLIC_LIFF_ID;
+      const trackerUrl = liffId
+        ? `https://liff.line.me/${liffId}${orderPath}`
+        : new URL(orderPath, req.url).toString();
       await sendLineOrderNotification(lineUserId, {
         queueNumber: order.queueNumber,
         customerName: order.customerName,
         totalAmount: order.totalAmount,
         items: order.items,
         paymentStatus: order.paymentStatus,
+        trackerUrl,
       });
     }
 

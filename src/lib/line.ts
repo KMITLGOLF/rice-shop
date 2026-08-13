@@ -8,6 +8,7 @@ interface OrderDetails {
   totalAmount: number;
   items: Array<{ itemName: string; quantity: number; price: number }>;
   paymentStatus: string;
+  trackerUrl: string;
 }
 
 type StoreStatus = 'OPEN' | 'CLOSED' | 'HOLIDAY' | 'QUEUE_ONLY';
@@ -210,6 +211,19 @@ export async function sendLineOrderNotification(
                 weight: 'bold',
               },
             ],
+          },
+        ],
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        spacing: 'sm',
+        contents: [
+          {
+            type: 'button',
+            action: { type: 'uri', label: 'ติดตามคิวของฉัน', uri: orderDetails.trackerUrl },
+            style: 'primary',
+            color: '#EA580C',
           },
         ],
       },
