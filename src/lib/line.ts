@@ -36,6 +36,46 @@ export async function sendLineStoreStatusNotification(status: StoreStatus, messa
   }
 }
 
+export async function sendLineOrderStatusNotification(
+  lineUserId: string,
+  details: { queueNumber: string; status: string; trackerUrl: string }
+): Promise<{ success: boolean; error?: string }> {
+  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+  const statusText: Record<string, string> = {
+    PENDING: 'ร้านรับออเดอร์ของคุณแล้ว',
+    PREPARING: 'ร้านกำลังเตรียมอาหารของคุณ',
+    READY: 'อาหารของคุณพร้อมรับแล้ว',
+    COMPLETED: 'คำสั่งซื้อเสร็จสิ้นแล้ว',
+    CANCELLED: 'คำสั่งซื้อของคุณถูกยกเลิก',
+  };
+  const text = `${statusText[details.status] || 'สถานะคำสั่งซื้อมีการเปลี่ยนแปลง'}\nคิว ${details.queueNumber}`;
+
+  if (!token || token === 'YOUR_LINE_CHANNEL_ACCESS_TOKEN') {
+    console.log(`[LINE OA Queue Update Simulator] ${text}: ${details.trackerUrl}`);
+    return { success: true };
+  }
+
+  try {
+    const res = await fetch('https://api.line.me/v2/bot/message/push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        to: lineUserId,
+        messages: [{ type: 'flex', altText: text, contents: { type: 'bubble', body: { type: 'box', layout: 'vertical', contents: [
+          { type: 'text', text: 'อัปเดตสถานะคำสั่งซื้อ', weight: 'bold', size: 'sm', color: '#EA580C' },
+          { type: 'text', text, weight: 'bold', size: 'lg', wrap: true, margin: 'md' },
+          { type: 'button', action: { type: 'uri', label: 'ดู Live Tracker', uri: details.trackerUrl }, style: 'primary', color: '#EA580C', margin: 'lg' },
+        ] } } }],
+      }),
+    });
+    if (!res.ok) return { success: false, error: await res.text() };
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to send LINE order-status notification:', error);
+    return { success: false, error: String(error) };
+  }
+}
+
 export async function sendLineOrderNotification(
   lineUserId: string,
   orderDetails: OrderDetails

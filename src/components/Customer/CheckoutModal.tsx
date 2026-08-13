@@ -26,7 +26,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   onClearCart,
 }) => {
   const router = useRouter();
-  const { profile } = useLiff();
+  const { profile, isLoggedIn, accessToken, login } = useLiff();
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('PROMPTPAY');
   const [customerName, setCustomerName] = useState('');
@@ -82,6 +82,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   };
 
   const handleSubmitOrder = async () => {
+    if (!isLoggedIn || !profile?.userId) {
+      alert('กรุณาเข้าสู่ระบบ LINE ก่อนยืนยันคำสั่งซื้อ');
+      login();
+      return;
+    }
     if (!customerName.trim()) {
       alert('กรุณากรอกชื่อลูกค้า');
       return;
@@ -126,6 +131,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           customerName: customerName.trim(),
           customerPhone: customerPhone.trim(),
           lineUserId: profile?.userId || null,
+          lineAccessToken: accessToken,
           note: orderNote.trim(),
           totalAmount,
           slipUrl: slipUrlValue,

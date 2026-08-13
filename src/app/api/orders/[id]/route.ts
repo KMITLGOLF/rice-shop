@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { sendLineOrderStatusNotification } from '@/lib/line';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,7 +9,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     const { id } = params;
     const order = await prisma.order.findUnique({
       where: { id },
-      include: { items: true },
+      include: { items: true, user: true },
     });
 
     if (!order) {
@@ -34,8 +35,17 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
         ...(status && { status }),
         ...(paymentStatus && { paymentStatus }),
       },
-      include: { items: true },
+      include: { items: true, user: true },
     });
+
+    if (status && updated.user?.lineUserId) {
+      const trackerUrl = new URL(`/order/${updated.id}`, req.url).toString();
+      await sendLineOrderStatusNotification(updated.user.lineUserId, {
+        queueNumber: updated.queueNumber,
+        status: updated.status,
+        trackerUrl,
+      });
+    }
 
     return NextResponse.json(updated);
   } catch (error) {

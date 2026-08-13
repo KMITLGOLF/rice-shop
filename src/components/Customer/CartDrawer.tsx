@@ -3,6 +3,7 @@
 import React from 'react';
 import { X, Trash2, Plus, Minus, ArrowRight, ShoppingBag } from 'lucide-react';
 import { MenuItemData } from './MenuCard';
+import { useLiff } from './LiffProvider';
 
 export interface CartItem {
   menuItem: MenuItemData;
@@ -31,6 +32,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onProceedToCheckout,
   isStoreOpen,
 }) => {
+  const { isLoggedIn, login } = useLiff();
   if (!isOpen) return null;
 
   const totalAmount = cart.reduce(
@@ -144,7 +146,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             </div>
 
             <button
-              onClick={onProceedToCheckout}
+              onClick={() => {
+                if (!isLoggedIn) {
+                  alert('กรุณาเข้าสู่ระบบ LINE ก่อนสั่งอาหาร');
+                  login();
+                  return;
+                }
+                onProceedToCheckout();
+              }}
               disabled={!isStoreOpen}
               className={`w-full py-4 px-4 rounded-xl font-bold text-white flex items-center justify-center gap-2 shadow-lg transition-all text-sm sm:text-base ${
                 isStoreOpen
@@ -152,7 +161,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   : 'bg-gray-400 cursor-not-allowed'
               }`}
             >
-              <span>ดำเนินการชำระเงิน</span>
+              <span>{isLoggedIn ? 'ดำเนินการชำระเงิน' : 'เข้าสู่ระบบ LINE เพื่อสั่งอาหาร'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

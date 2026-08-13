@@ -12,18 +12,22 @@ interface LineProfile {
 interface LiffContextType {
   isLoggedIn: boolean;
   profile: LineProfile | null;
+  accessToken: string | null;
   liffError: string | null;
   login: () => void;
   logout: () => void;
+  updateProfile: (profile: Pick<LineProfile, 'displayName'>) => void;
   isMockUser: boolean;
 }
 
 const LiffContext = createContext<LiffContextType>({
   isLoggedIn: false,
   profile: null,
+  accessToken: null,
   liffError: null,
   login: () => {},
   logout: () => {},
+  updateProfile: () => {},
   isMockUser: false,
 });
 
@@ -32,23 +36,16 @@ export const useLiff = () => useContext(LiffContext);
 export const LiffProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [profile, setProfile] = useState<LineProfile | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [liffError, setLiffError] = useState<string | null>(null);
-  const [isMockUser, setIsMockUser] = useState<boolean>(false);
+  const [isMockUser] = useState<boolean>(false);
 
   useEffect(() => {
     // Check if LIFF ID is configured
     const liffId = process.env.NEXT_PUBLIC_LIFF_ID;
 
     if (!liffId || liffId === 'YOUR_LIFF_ID') {
-      // Fallback: Initialize default mock LINE user for seamless local testing
-      const mockProfile: LineProfile = {
-        userId: 'U1234567890abcdef',
-        displayName: 'ลูกค้าทดสอบ (LINE Customer)',
-        pictureUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      };
-      setProfile(mockProfile);
-      setIsLoggedIn(true);
-      setIsMockUser(true);
+      setLiffError('ยังไม่ได้ตั้งค่า LINE Login');
       return;
     }
 
@@ -61,6 +58,7 @@ export const LiffProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .then(() => {
             if (liff.isLoggedIn()) {
               setIsLoggedIn(true);
+              setAccessToken(liff.getAccessToken());
               liff.getProfile().then((p) => {
                 setProfile({
                   userId: p.userId,
@@ -84,8 +82,7 @@ export const LiffProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = () => {
     const liffId = process.env.NEXT_PUBLIC_LIFF_ID;
     if (!liffId || liffId === 'YOUR_LIFF_ID') {
-      // Simulate login state
-      setIsLoggedIn(true);
+      setLiffError('ไม่สามารถเข้าสู่ระบบได้ กรุณาตั้งค่า NEXT_PUBLIC_LIFF_ID');
       return;
     }
 
@@ -101,15 +98,21 @@ export const LiffProvider: React.FC<{ children: React.ReactNode }> = ({ children
         liffModule.default.logout();
         setIsLoggedIn(false);
         setProfile(null);
+        setAccessToken(null);
       });
     } else {
       setIsLoggedIn(false);
       setProfile(null);
+      setAccessToken(null);
     }
   };
 
+  const updateProfile = (updates: Pick<LineProfile, 'displayName'>) => {
+    setProfile((current) => (current ? { ...current, ...updates } : current));
+  };
+
   return (
-    <LiffContext.Provider value={{ isLoggedIn, profile, liffError, login, logout, isMockUser }}>
+    <LiffContext.Provider value={{ isLoggedIn, profile, accessToken, liffError, login, logout, updateProfile, isMockUser }}>
       {children}
     </LiffContext.Provider>
   );
