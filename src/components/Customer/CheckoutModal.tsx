@@ -86,6 +86,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       alert('กรุณากรอกชื่อลูกค้า');
       return;
     }
+    if (paymentMethod === 'PROMPTPAY' && !slipFile) {
+      alert('กรุณาแนบสลิปการโอนเงินก่อนยืนยันคำสั่งซื้อ');
+      return;
+    }
 
     setSubmittingOrder(true);
     try {
@@ -112,7 +116,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       } else if (finalSlipUrl) {
         slipUrlValue = finalSlipUrl;
       } else {
-        slipUrlValue = 'PROMPTPAY_PENDING';
+        throw new Error('กรุณาแนบสลิปการโอนเงินก่อนยืนยันคำสั่งซื้อ');
       }
 
       const res = await fetch('/api/orders', {
@@ -249,7 +253,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
                   {/* Slip Upload */}
                   <div className="mt-3 w-full">
-                    <label className="block text-xs font-bold text-gray-600 mb-1.5">📎 แนบสลิปการโอนเงิน</label>
+                    <label className="block text-xs font-bold text-gray-600 mb-1.5">📎 แนบสลิปการโอนเงิน <span className="text-red-500">*</span></label>
                     <label className={`cursor-pointer flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed text-xs font-semibold transition-all ${
                       uploadedSlip
                         ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
@@ -327,7 +331,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               {/* Confirm Button */}
               <button
                 onClick={handleSubmitOrder}
-                disabled={submittingOrder}
+                disabled={submittingOrder || (paymentMethod === 'PROMPTPAY' && !slipFile)}
                 className={`w-full py-4 rounded-2xl font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg transition-all active:scale-[0.98] ${
                   paymentMethod === 'CASH'
                     ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-emerald-200'

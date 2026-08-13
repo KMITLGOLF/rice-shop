@@ -8,7 +8,7 @@ import Link from 'next/link';
 interface NavbarProps {
   cartCount: number;
   onOpenCart: () => void;
-  storeStatus: 'OPEN' | 'CLOSED' | 'HOLIDAY';
+  storeStatus: 'OPEN' | 'CLOSED' | 'HOLIDAY' | 'QUEUE_ONLY';
   storeName: string;
 }
 
@@ -32,13 +32,15 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, storeStat
                 className={`inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 ${
                   storeStatus === 'OPEN'
                     ? 'bg-emerald-500 animate-pulse'
+                    : storeStatus === 'QUEUE_ONLY'
+                    ? 'bg-violet-500 animate-pulse'
                     : storeStatus === 'CLOSED'
                     ? 'bg-rose-500'
                     : 'bg-amber-500'
                 }`}
               />
               <span className="text-[10px] sm:text-xs text-gray-500 font-medium whitespace-nowrap">
-                {storeStatus === 'OPEN' ? 'เปิดให้บริการ' : storeStatus === 'CLOSED' ? 'ร้านปิด' : 'วันหยุดร้าน'}
+                {storeStatus === 'OPEN' ? 'เปิดให้บริการ' : storeStatus === 'QUEUE_ONLY' ? 'รับจองคิว' : storeStatus === 'CLOSED' ? 'ร้านปิด' : 'วันหยุดร้าน'}
               </span>
             </div>
           </div>

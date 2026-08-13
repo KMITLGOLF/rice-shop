@@ -37,7 +37,7 @@ export const AdminNavbar: React.FC<AdminNavbarProps> = ({ pendingCount = 0 }) =>
             <h1 className="font-extrabold text-sm sm:text-base tracking-wide text-orange-400 leading-tight">
               Admin Portal
             </h1>
-            <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium hidden xs:block">ร้านข้าวคุณแม่</p>
+            <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium hidden xs:block">Admin Portal</p>
           </div>
         </div>
 

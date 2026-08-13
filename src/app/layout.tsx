@@ -3,8 +3,14 @@ import './globals.css';
 import { LiffProvider } from '@/components/Customer/LiffProvider';
 
 export const metadata: Metadata = {
-  title: "ร้านข้าวคุณแม่ - สั่งอาหารออนไลน์ & PromptPay QR",
+  title: "สั่งอาหารออนไลน์",
   description: "ระบบสั่งอาหารออนไลน์ผ่าน LINE LIFF พร้อมชำระเงิน PromptPay QR Code และติดตามคิว realtime",
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Admin ร้านอาหาร',
+  },
 };
 
 export const viewport: Viewport = {

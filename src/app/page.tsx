@@ -11,7 +11,7 @@ import { Search, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 
 export default function CustomerHomePage() {
   const [storeSetting, setStoreSetting] = useState<{
-    status: 'OPEN' | 'CLOSED' | 'HOLIDAY';
+    status: 'OPEN' | 'CLOSED' | 'HOLIDAY' | 'QUEUE_ONLY';
     closedMessage: string;
     storeName: string;
     promptpayId: string;
@@ -19,9 +19,9 @@ export default function CustomerHomePage() {
   }>({
     status: 'OPEN',
     closedMessage: '',
-    storeName: 'ร้านข้าวคุณแม่',
-    promptpayId: '0812345678',
-    promptpayName: 'ร้านข้าวคุณแม่',
+    storeName: '',
+    promptpayId: '',
+    promptpayName: '',
   });
 
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
@@ -53,9 +53,9 @@ export default function CustomerHomePage() {
         setStoreSetting(storeData && !storeData.error ? storeData : {
           status: 'OPEN',
           closedMessage: '',
-          storeName: 'ร้านข้าวคุณแม่',
-          promptpayId: '0812345678',
-          promptpayName: 'ร้านข้าวคุณแม่',
+          storeName: '',
+          promptpayId: '',
+          promptpayName: '',
         });
         setCategories(Array.isArray(catData) ? catData : []);
         setMenuItems(Array.isArray(menuData) ? menuData : []);
@@ -77,7 +77,7 @@ export default function CustomerHomePage() {
   };
 
   const handleAddToCart = (item: MenuItemData) => {
-    if (storeSetting.status !== 'OPEN') {
+    if (!['OPEN', 'QUEUE_ONLY'].includes(storeSetting.status)) {
       alert(storeSetting.closedMessage || 'ร้านปิดให้บริการอยู่ในขณะนี้');
       return;
     }
@@ -207,7 +207,7 @@ export default function CustomerHomePage() {
                   key={item.id}
                   item={item}
                   onAddToCart={handleAddToCart}
-                  isStoreOpen={storeSetting.status === 'OPEN'}
+                  isStoreOpen={['OPEN', 'QUEUE_ONLY'].includes(storeSetting.status)}
                 />
               ))}
             </div>
@@ -254,7 +254,7 @@ export default function CustomerHomePage() {
           setIsCartOpen(false);
           setIsCheckoutOpen(true);
         }}
-        isStoreOpen={storeSetting.status === 'OPEN'}
+        isStoreOpen={['OPEN', 'QUEUE_ONLY'].includes(storeSetting.status)}
       />
 
       {/* PromptPay Dynamic QR Checkout Modal */}

@@ -16,11 +16,11 @@ async function main() {
   await prisma.storeSetting.create({
     data: {
       id: 'default',
-      storeName: 'ร้านข้าวคุณแม่ (Mom\'s Rice Kitchen)',
+      storeName: '',
       status: 'OPEN',
       closedMessage: 'ขออภัย วันนี้ร้านปิดให้บริการ จะกลับมาเปิดใหม่อีกครั้งพรุ่งนี้ครับ',
-      promptpayId: '0812345678',
-      promptpayName: 'ร้านข้าวคุณแม่',
+      promptpayId: '',
+      promptpayName: '',
     },
   });
 

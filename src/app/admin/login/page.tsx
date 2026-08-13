@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
               <Store className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-2xl font-black text-white tracking-tight">ระบบหลังร้าน</h1>
-            <p className="text-slate-400 text-sm font-medium mt-1">Admin Portal · ร้านข้าวคุณแม่</p>
+            <p className="text-slate-400 text-sm font-medium mt-1">Admin Portal</p>
           </div>
 
           {/* Form */}

@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       where: { id: 'default' },
     });
 
-    if (storeSetting && storeSetting.status !== 'OPEN') {
+    if (storeSetting && !['OPEN', 'QUEUE_ONLY'].includes(storeSetting.status)) {
       return NextResponse.json(
         { error: storeSetting.closedMessage || 'ขออภัย ร้านค้าปิดให้บริการอยู่ในขณะนี้' },
         { status: 403 }
@@ -34,10 +34,19 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { customerName, customerPhone, items, totalAmount, note, lineUserId, slipUrl } = body;
+    const { customerName, customerPhone, items, totalAmount, note, lineUserId, slipUrl, paymentMethod } = body;
 
     if (!customerName || !items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: 'Customer name and valid order items are required.' }, { status: 400 });
+    }
+    if (!Number.isFinite(Number(totalAmount)) || Number(totalAmount) <= 0) {
+      return NextResponse.json({ error: 'A valid total amount is required.' }, { status: 400 });
+    }
+    if (paymentMethod !== 'CASH' && paymentMethod !== 'PROMPTPAY') {
+      return NextResponse.json({ error: 'A valid payment method is required.' }, { status: 400 });
+    }
+    if (paymentMethod === 'PROMPTPAY' && (typeof slipUrl !== 'string' || !slipUrl.startsWith('http'))) {
+      return NextResponse.json({ error: 'กรุณาแนบสลิปการโอนเงินก่อนยืนยันคำสั่งซื้อ' }, { status: 400 });
     }
 
     // 2. Generate Today's Queue Number (e.g. A-001)

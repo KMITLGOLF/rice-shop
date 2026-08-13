@@ -6,7 +6,7 @@ import { Settings, Store, QrCode, Save, Loader2, CheckCircle2 } from 'lucide-rea
 
 export default function AdminSettingsPage() {
   const [storeName, setStoreName] = useState('');
-  const [status, setStatus] = useState<'OPEN' | 'CLOSED' | 'HOLIDAY'>('OPEN');
+  const [status, setStatus] = useState<'OPEN' | 'CLOSED' | 'HOLIDAY' | 'QUEUE_ONLY'>('OPEN');
   const [closedMessage, setClosedMessage] = useState('');
   const [promptpayId, setPromptpayId] = useState('');
   const [promptpayName, setPromptpayName] = useState('');
@@ -87,13 +87,19 @@ export default function AdminSettingsPage() {
                 สถานะเปิด-ปิดรับออเดอร์ (Store Status Guard)
               </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                 {[
                   {
                     key: 'OPEN',
                     title: '🟢 เปิดให้บริการ (OPEN)',
                     desc: 'ลูกค้าสามารถดูเมนูและส่งออเดอร์ได้ตามปกติ',
                     activeBorder: 'border-emerald-500 bg-emerald-50 text-emerald-900',
+                  },
+                  {
+                    key: 'QUEUE_ONLY',
+                    title: '🟣 รับจองคิว (QUEUE ONLY)',
+                    desc: 'ร้านยังไม่เปิดให้รับทันที แต่ลูกค้าสั่งล่วงหน้าและเข้าคิวได้',
+                    activeBorder: 'border-violet-500 bg-violet-50 text-violet-900',
                   },
                   {
                     key: 'CLOSED',
@@ -138,7 +144,7 @@ export default function AdminSettingsPage() {
               {status !== 'OPEN' && (
                 <div className="pt-2 animate-in fade-in">
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    ข้อความแจ้งลูกค้าเมื่อร้านปิด/หยุด
+                    ข้อความแจ้งลูกค้าเมื่อสถานะร้านเปลี่ยน
                   </label>
                   <textarea
                     rows={2}
@@ -189,7 +195,7 @@ export default function AdminSettingsPage() {
                     </label>
                     <input
                       type="text"
-                      placeholder="เช่น ร้านข้าวคุณแม่"
+                      placeholder="เช่น ชื่อร้านของคุณ"
                       value={promptpayName}
                       onChange={(e) => setPromptpayName(e.target.value)}
                       className="w-full text-sm bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-500 font-bold text-slate-800"

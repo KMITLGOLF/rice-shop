@@ -10,11 +10,11 @@ generator client {
 
 model StoreSetting {
   id              String   @id @default("default")
-  storeName       String   @default("ร้านข้าวคุณแม่ (Mom's Rice Kitchen)")
-  status          String   @default("OPEN") // OPEN | CLOSED | HOLIDAY
+  storeName       String   @default("")
+  status          String   @default("OPEN") // OPEN | CLOSED | HOLIDAY | QUEUE_ONLY
   closedMessage   String   @default("ขออภัย วันนี้ร้านปิดให้บริการ จะกลับมาเปิดใหม่อีกครั้งพรุ่งนี้ครับ")
-  promptpayId     String   @default("0812345678")
-  promptpayName   String   @default("ร้านข้าวคุณแม่")
+  promptpayId     String   @default("")
+  promptpayName   String   @default("")
   updatedAt       DateTime @updatedAt
 }
 

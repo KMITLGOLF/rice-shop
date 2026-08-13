@@ -10,6 +10,32 @@ interface OrderDetails {
   paymentStatus: string;
 }
 
+type StoreStatus = 'OPEN' | 'CLOSED' | 'HOLIDAY' | 'QUEUE_ONLY';
+
+export async function sendLineStoreStatusNotification(status: StoreStatus, message?: string): Promise<{ success: boolean; error?: string }> {
+  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+  const statusText = status === 'OPEN' ? 'ร้านเปิดให้บริการแล้ว' : status === 'QUEUE_ONLY' ? 'ร้านเปิดรับจองคิว/สั่งล่วงหน้า' : status === 'HOLIDAY' ? 'ร้านหยุดให้บริการวันนี้' : 'ร้านปิดให้บริการชั่วคราว';
+  const text = `${statusText}${message ? `\n${message}` : ''}`;
+
+  if (!token || token === 'YOUR_LINE_CHANNEL_ACCESS_TOKEN') {
+    console.log(`[LINE OA Store Status Simulator] ${text}`);
+    return { success: true };
+  }
+
+  try {
+    const res = await fetch('https://api.line.me/v2/bot/message/broadcast', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ messages: [{ type: 'text', text }] }),
+    });
+    if (!res.ok) return { success: false, error: await res.text() };
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to send LINE store-status notification:', error);
+    return { success: false, error: String(error) };
+  }
+}
+
 export async function sendLineOrderNotification(
   lineUserId: string,
   orderDetails: OrderDetails
