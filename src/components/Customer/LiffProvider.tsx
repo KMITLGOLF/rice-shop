@@ -88,18 +88,9 @@ export const LiffProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     import('@line/liff').then((liffModule) => {
       const liff = liffModule.default;
-
-      // When opened from Safari or another external browser, enter through the
-      // LIFF universal link. Preserve the current route so customers return to
-      // the same page (including Live Tracker) after LINE authentication.
-      if (!liff.isInClient()) {
-        const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-        window.location.assign(`https://liff.line.me/${liffId}${currentPath}`);
-        return;
-      }
-
-      // Inside the LINE app, return the customer to their current page after
-      // LINE completes authentication.
+      // LIFF keeps the customer inside LINE when launched from LINE. Do not
+      // open a second LIFF URL here: doing so creates nested iOS web views.
+      // The redirect URI preserves the current page after authentication.
       liff.login({ redirectUri: window.location.href });
     });
   };
