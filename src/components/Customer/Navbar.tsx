@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShoppingBag, Store, UserCheck, ShieldCheck, UserRound } from 'lucide-react';
+import { ShoppingBag, Store, UserCheck, ShieldCheck, UserRound, ListOrdered } from 'lucide-react';
 import { useLiff } from './LiffProvider';
 import Link from 'next/link';
 
@@ -59,6 +59,10 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, storeStat
 
           {/* User LINE Avatar / Login Button */}
           {isLoggedIn && profile ? (
+            <>
+            <Link href="/my-orders" aria-label="คิวของฉัน" className="p-2 rounded-full bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-100">
+              <ListOrdered className="w-4 h-4" />
+            </Link>
             <Link href="/profile" className="flex items-center gap-1.5 bg-emerald-50 text-emerald-800 px-2 py-1 rounded-full text-xs font-medium border border-emerald-200 hover:bg-emerald-100">
               <img
                 src={profile.pictureUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
@@ -68,6 +72,7 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, storeStat
               <span className="max-w-[60px] sm:max-w-[80px] truncate text-[10px] sm:text-xs">{profile.displayName}</span>
               <UserRound className="w-3 h-3" />
             </Link>
+            </>
           ) : (
             <button
               onClick={login}
