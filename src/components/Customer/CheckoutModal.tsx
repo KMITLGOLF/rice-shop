@@ -270,7 +270,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       ) : (
                         <><Upload className="w-4 h-4 text-orange-500" /> อัปโหลดรูปสลิป</>
                       )}
-                      <input type="file" accept="image/*" onChange={handleSlipUpload} className="hidden" capture="environment" />
+                      <input type="file" accept="image/*" onChange={handleSlipUpload} className="hidden" />
                     </label>
                   </div>
                 </div>
