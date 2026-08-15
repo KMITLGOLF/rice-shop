@@ -218,18 +218,56 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">
-              ตัวเลือก / เนื้อสัตว์ (คั่นด้วยเครื่องหมายจุลภาค ,)
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">
+              เลือกตัวเลือกเนื้อสัตว์ที่จะเปิดให้ลูกค้าเลือก (Choice Selection)
             </label>
+            
+            {/* Quick Choice Checkbox Pills */}
+            <div className="flex flex-wrap gap-2 mb-2">
+              {['ไส้กรอก', 'เบคอน', 'หมึก', 'กุ้ง', 'หมึก+กุ้ง', 'หมูสับ', 'ไก่', 'เนื้อ'].map((preset) => {
+                const currentOptions = optionsStr
+                  .split(',')
+                  .map((s) => s.trim())
+                  .filter(Boolean);
+                const isSelected = currentOptions.includes(preset);
+
+                const togglePreset = () => {
+                  let updated: string[];
+                  if (isSelected) {
+                    updated = currentOptions.filter((o) => o !== preset);
+                  } else {
+                    updated = [...currentOptions, preset];
+                  }
+                  setOptionsStr(updated.join(', '));
+                };
+
+                return (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={togglePreset}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                      isSelected
+                        ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
+                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {isSelected ? `✓ ${preset}` : `+ ${preset}`}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Custom Edit Input */}
             <input
               type="text"
-              placeholder="เช่น ไส้กรอก, เบคอน, หมึก, กุ้ง, หมึก+กุ้ง"
+              placeholder="หรือพิมพ์ตัวเลือกเอง คั่นด้วยจุลภาค เช่น ไส้กรอก, เบคอน..."
               value={optionsStr}
               onChange={(e) => setOptionsStr(e.target.value)}
-              className="w-full text-sm bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-500 text-gray-700 font-medium"
+              className="w-full text-xs bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-500 text-gray-700 font-medium"
             />
             <p className="text-[10px] text-gray-400 mt-1">
-              ลูกค้าจะสามารถเลือกตัวเลือกเหล่านี้ได้ตอนกดสั่งอาหาร
+              * สามารถกดคลิกเลือกตัวเลือกสำเร็จรูปด้านบน หรือพิมพ์กำหนดตัวเลือกเองได้ครับ
             </p>
           </div>
 
