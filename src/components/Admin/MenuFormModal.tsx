@@ -88,14 +88,16 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
       setPrice(initialItem.price.toString());
       setImageUrl(initialItem.imageUrl);
       setCategoryId((initialItem as any).categoryId || categories[0]?.id || '');
+      setOptionsStr(initialItem.options ? initialItem.options.join(', ') : 'ไส้กรอก, เบคอน, หมึก, กุ้ง, หมึก+กุ้ง');
       setIsAvailable(initialItem.isAvailable);
       setIsRecommended(initialItem.isRecommended);
     } else {
       setName('');
       setDescription('');
       setPrice('');
-      setImageUrl('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80');
+      setImageUrl('https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600&auto=format&fit=crop&q=80');
       setCategoryId(categories[0]?.id || '');
+      setOptionsStr('ไส้กรอก, เบคอน, หมึก, กุ้ง, หมึก+กุ้ง');
       setIsAvailable(true);
       setIsRecommended(false);
     }
@@ -112,6 +114,11 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
 
     setLoading(true);
     try {
+      const optionsArray = optionsStr
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+
       await onSave({
         id: initialItem?.id,
         name,
@@ -119,6 +126,7 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
         price: parseFloat(price),
         imageUrl,
         categoryId,
+        options: optionsArray,
         isAvailable,
         isRecommended,
       });
@@ -206,6 +214,22 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
               onChange={(e) => setDescription(e.target.value)}
               className="w-full text-sm bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-500 text-gray-700"
             />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1">
+              ตัวเลือก / เนื้อสัตว์ (คั่นด้วยเครื่องหมายจุลภาค ,)
+            </label>
+            <input
+              type="text"
+              placeholder="เช่น ไส้กรอก, เบคอน, หมึก, กุ้ง, หมึก+กุ้ง"
+              value={optionsStr}
+              onChange={(e) => setOptionsStr(e.target.value)}
+              className="w-full text-sm bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-500 text-gray-700 font-medium"
+            />
+            <p className="text-[10px] text-gray-400 mt-1">
+              ลูกค้าจะสามารถเลือกตัวเลือกเหล่านี้ได้ตอนกดสั่งอาหาร
+            </p>
           </div>
 
           <div>

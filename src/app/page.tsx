@@ -7,6 +7,7 @@ import { CategoryTabs } from '@/components/Customer/CategoryTabs';
 import { MenuCard, MenuItemData } from '@/components/Customer/MenuCard';
 import { CartDrawer, CartItem } from '@/components/Customer/CartDrawer';
 import { CheckoutModal } from '@/components/Customer/CheckoutModal';
+import { OptionModal } from '@/components/Customer/OptionModal';
 import { Search, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 
 export default function CustomerHomePage() {
@@ -35,6 +36,10 @@ export default function CustomerHomePage() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Option Modal State
+  const [selectedOptionItem, setSelectedOptionItem] = useState<MenuItemData | null>(null);
+  const [isOptionModalOpen, setIsOptionModalOpen] = useState(false);
 
   // Fetch Store Status, Categories, and Menu
   useEffect(() => {
@@ -82,17 +87,45 @@ export default function CustomerHomePage() {
       return;
     }
 
+    // Open OptionModal if item has options
+    if (item.options && item.options.length > 0) {
+      setSelectedOptionItem(item);
+      setIsOptionModalOpen(true);
+      return;
+    }
+
+    // Otherwise add directly
+    addCartItemWithOption(item, undefined);
+  };
+
+  const addCartItemWithOption = (item: MenuItemData, option?: string) => {
+    const cartItemId = option ? `${item.id}-${option}` : item.id;
+    const displayName = option ? `${item.name} (${option})` : item.name;
+
     setCart((prevCart) => {
-      const existing = prevCart.find((ci) => ci.menuItem.id === item.id);
+      const existing = prevCart.find((ci) => (ci as any).cartItemId === cartItemId || ci.menuItem.id === cartItemId);
       if (existing) {
         return prevCart.map((ci) =>
-          ci.menuItem.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci
+          ((ci as any).cartItemId === cartItemId || ci.menuItem.id === cartItemId)
+            ? { ...ci, quantity: ci.quantity + 1 }
+            : ci
         );
       }
-      return [...prevCart, { menuItem: item, quantity: 1 }];
+      return [
+        ...prevCart,
+        {
+          menuItem: {
+            ...item,
+            id: cartItemId,
+            name: displayName,
+          },
+          quantity: 1,
+          specialRequest: option ? `เลือก: ${option}` : undefined,
+        },
+      ];
     });
 
-    showToast(`เพิ่ม "${item.name}" ลงในตะกร้าแล้ว`);
+    showToast(`เพิ่ม "${displayName}" ลงในตะกร้าแล้ว`);
   };
 
   const handleUpdateQuantity = (menuItemId: string, delta: number) => {
@@ -255,6 +288,16 @@ export default function CustomerHomePage() {
           setIsCheckoutOpen(true);
         }}
         isStoreOpen={['OPEN', 'QUEUE_ONLY'].includes(storeSetting.status)}
+      />
+
+      {/* Option Selection Modal */}
+      <OptionModal
+        isOpen={isOptionModalOpen}
+        onClose={() => setIsOptionModalOpen(false)}
+        item={selectedOptionItem}
+        onConfirm={(item, selectedOption) => {
+          addCartItemWithOption(item, selectedOption);
+        }}
       />
 
       {/* PromptPay Dynamic QR Checkout Modal */}

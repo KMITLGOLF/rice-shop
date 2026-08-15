@@ -11,6 +11,7 @@ export interface MenuItemData {
   imageUrl: string;
   isAvailable: boolean;
   isRecommended: boolean;
+  options?: string[];
   category?: { name: string };
 }
 
