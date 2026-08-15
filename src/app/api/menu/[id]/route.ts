@@ -3,44 +3,37 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
+async function ensureOptionsColumn() {
+  try {
+    await prisma.$executeRawUnsafe(
+      `ALTER TABLE "MenuItem" ADD COLUMN IF NOT EXISTS options JSONB DEFAULT '[]'::jsonb`
+    );
+  } catch (e) {
+    // safe to ignore - column already exists or no permission
+  }
+}
+
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  await ensureOptionsColumn();
   try {
     const { id } = params;
     const body = await req.json();
     const { name, description, price, imageUrl, categoryId, isAvailable, isRecommended, options } = body;
 
-    let updated;
-    try {
-      updated = await prisma.menuItem.update({
-        where: { id },
-        data: {
-          ...(name !== undefined && { name }),
-          ...(description !== undefined && { description }),
-          ...(price !== undefined && { price: parseFloat(price) }),
-          ...(imageUrl !== undefined && { imageUrl }),
-          ...(categoryId !== undefined && { categoryId }),
-          ...(isAvailable !== undefined && { isAvailable }),
-          ...(isRecommended !== undefined && { isRecommended }),
-          ...(options !== undefined && { options }),
-        },
-        include: { category: true },
-      });
-    } catch (dbError) {
-      console.warn('DB does not support options field yet, falling back:', dbError);
-      updated = await prisma.menuItem.update({
-        where: { id },
-        data: {
-          ...(name !== undefined && { name }),
-          ...(description !== undefined && { description }),
-          ...(price !== undefined && { price: parseFloat(price) }),
-          ...(imageUrl !== undefined && { imageUrl }),
-          ...(categoryId !== undefined && { categoryId }),
-          ...(isAvailable !== undefined && { isAvailable }),
-          ...(isRecommended !== undefined && { isRecommended }),
-        },
-        include: { category: true },
-      });
-    }
+    const updated = await prisma.menuItem.update({
+      where: { id },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(description !== undefined && { description }),
+        ...(price !== undefined && { price: parseFloat(price) }),
+        ...(imageUrl !== undefined && { imageUrl }),
+        ...(categoryId !== undefined && { categoryId }),
+        ...(isAvailable !== undefined && { isAvailable }),
+        ...(isRecommended !== undefined && { isRecommended }),
+        ...(options !== undefined && { options }),
+      },
+      include: { category: true },
+    });
 
     return NextResponse.json(updated);
   } catch (error) {
@@ -61,19 +54,15 @@ const DEFAULT_ITEM_IDS = new Set([
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
   const { id } = params;
 
-  // Default items live only in fallback data — no DB row to delete
   if (DEFAULT_ITEM_IDS.has(id)) {
     return NextResponse.json({ success: true, note: 'default-item' });
   }
 
   try {
-    // Delete related OrderItems first to avoid FK constraint errors
     await prisma.orderItem.deleteMany({ where: { menuItemId: id } });
-    // Now delete the MenuItem itself
     await prisma.menuItem.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    // P2025 = record not found — treat as success
     if (error?.code === 'P2025') {
       return NextResponse.json({ success: true, note: 'not-found' });
     }
