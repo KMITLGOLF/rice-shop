@@ -110,30 +110,59 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </div>
 
                   {/* Special Request + Quantity */}
-                  <div className="mt-2 flex items-center gap-2">
-                    <input
-                      type="text"
-                      placeholder="ระบุเพิ่มเติม (เช่น เผ็ดน้อย)"
-                      value={item.specialRequest || ''}
-                      onChange={(e) => onUpdateSpecialRequest(item.menuItem.id, e.target.value)}
-                      className="flex-1 min-w-0 text-xs bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-orange-500 text-gray-700 placeholder-gray-400"
-                    />
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <button
-                        onClick={() => onUpdateQuantity(item.menuItem.id, -1)}
-                        className="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center transition-colors"
-                      >
-                        <Minus className="w-3 h-3" />
-                      </button>
-                      <span className="text-xs font-bold text-gray-800 w-5 text-center">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() => onUpdateQuantity(item.menuItem.id, 1)}
-                        className="w-7 h-7 rounded-full bg-orange-100 hover:bg-orange-200 text-orange-700 flex items-center justify-center transition-colors"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
+                  <div className="mt-2 space-y-2">
+                    {/* Selectable Choice Dropdown inside Cart Drawer if item has options */}
+                    {item.menuItem.options && item.menuItem.options.length > 0 && (
+                      <div>
+                        <select
+                          value={
+                            item.specialRequest?.startsWith('เลือก:')
+                              ? item.specialRequest.replace('เลือก:', '').trim()
+                              : item.menuItem.options[0]
+                          }
+                          onChange={(e) =>
+                            onUpdateSpecialRequest(item.menuItem.id, `เลือก: ${e.target.value}`)
+                          }
+                          className="w-full text-xs font-bold bg-orange-50 text-orange-900 border border-orange-200 rounded-lg px-2 py-1 focus:outline-none focus:border-orange-500 cursor-pointer"
+                        >
+                          {item.menuItem.options.map((opt) => (
+                            <option key={opt} value={opt}>
+                              🥩 เนื้อสัตว์: {opt}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder="ระบุเพิ่มเติม (เช่น เผ็ดน้อย)"
+                        value={
+                          item.specialRequest?.startsWith('เลือก:')
+                            ? ''
+                            : item.specialRequest || ''
+                        }
+                        onChange={(e) => onUpdateSpecialRequest(item.menuItem.id, e.target.value)}
+                        className="flex-1 min-w-0 text-xs bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-orange-500 text-gray-700 placeholder-gray-400"
+                      />
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          onClick={() => onUpdateQuantity(item.menuItem.id, -1)}
+                          className="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center transition-colors"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="text-xs font-bold text-gray-800 w-5 text-center">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => onUpdateQuantity(item.menuItem.id, 1)}
+                          className="w-7 h-7 rounded-full bg-orange-100 hover:bg-orange-200 text-orange-700 flex items-center justify-center transition-colors"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
