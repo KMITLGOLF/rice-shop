@@ -99,6 +99,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
+                    {item.specialRequest && item.specialRequest.startsWith('เลือก:') && (
+                      <span className="inline-block bg-orange-100 text-orange-800 text-[10px] font-extrabold px-2 py-0.5 rounded-md mt-1 border border-orange-200">
+                        {item.specialRequest}
+                      </span>
+                    )}
                     <p className="text-xs font-bold text-orange-600 mt-0.5">
                       ฿{(item.menuItem.price * item.quantity).toFixed(0)}
                     </p>

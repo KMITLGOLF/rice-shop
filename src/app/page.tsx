@@ -87,9 +87,21 @@ export default function CustomerHomePage() {
       return;
     }
 
-    // Open OptionModal if item has options
-    if (item.options && item.options.length > 0) {
-      setSelectedOptionItem(item);
+    // Determine options: check if item has custom options, or is a noodle/spaghetti dish, or description mentions choice
+    const itemOptions = item.options && item.options.length > 0
+      ? item.options
+      : (
+        item.name.includes('สปาเก็ตตี้') ||
+        item.name.includes('ผัด') ||
+        item.name.includes('ก๋วยเตี๋ยว') ||
+        (item.description && item.description.includes('เลือกเนื้อสัตว์')) ||
+        (item.category?.name && item.category.name.includes('เส้น'))
+      )
+        ? ['ไส้กรอก', 'เบคอน', 'หมึก', 'กุ้ง', 'หมึก+กุ้ง']
+        : null;
+
+    if (itemOptions && itemOptions.length > 0) {
+      setSelectedOptionItem({ ...item, options: itemOptions });
       setIsOptionModalOpen(true);
       return;
     }
