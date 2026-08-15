@@ -118,16 +118,19 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           value={
                             item.specialRequest?.startsWith('เลือก:')
                               ? item.specialRequest.replace('เลือก:', '').trim()
-                              : item.menuItem.options[0]
+                              : item.menuItem.options[0].name
                           }
-                          onChange={(e) =>
-                            onUpdateSpecialRequest(item.menuItem.id, `เลือก: ${e.target.value}`)
-                          }
+                          onChange={(e) => {
+                            const newOptionName = e.target.value;
+                            const matchedOption = item.menuItem.options?.find(o => o.name === newOptionName);
+                            // We can update the special request
+                            onUpdateSpecialRequest(item.menuItem.id, `เลือก: ${newOptionName}`);
+                          }}
                           className="w-full text-xs font-bold bg-orange-50 text-orange-900 border border-orange-200 rounded-lg px-2 py-1 focus:outline-none focus:border-orange-500 cursor-pointer"
                         >
                           {item.menuItem.options.map((opt) => (
-                            <option key={opt} value={opt}>
-                              🥩 เนื้อสัตว์: {opt}
+                            <option key={opt.name} value={opt.name}>
+                              🥩 เนื้อสัตว์: {opt.name} {opt.price > 0 ? `(฿${opt.price})` : ''}
                             </option>
                           ))}
                         </select>
