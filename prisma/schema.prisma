@@ -36,6 +36,7 @@ model MenuItem {
   category      Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   isAvailable   Boolean     @default(true)
   isRecommended Boolean     @default(false)
+  options       Json?       // [{name: string, price: number}]
   orderItems    OrderItem[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt

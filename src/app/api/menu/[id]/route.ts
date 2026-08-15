@@ -7,7 +7,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   try {
     const { id } = params;
     const body = await req.json();
-    const { name, description, price, imageUrl, categoryId, isAvailable, isRecommended } = body;
+    const { name, description, price, imageUrl, categoryId, isAvailable, isRecommended, options } = body;
 
     const updated = await prisma.menuItem.update({
       where: { id },
@@ -19,6 +19,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         ...(categoryId !== undefined && { categoryId }),
         ...(isAvailable !== undefined && { isAvailable }),
         ...(isRecommended !== undefined && { isRecommended }),
+        ...(options !== undefined && { options }),
       },
       include: { category: true },
     });

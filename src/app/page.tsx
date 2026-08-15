@@ -87,10 +87,17 @@ export default function CustomerHomePage() {
       return;
     }
 
-    // Always show option modal if item has options OR matches noodle/spaghetti keywords
-    const defaultOptions = ['ไส้กรอก', 'เบคอน', 'หมึก', 'กุ้ง', 'หมึก+กุ้ง'];
+    const defaultOptions = [
+      { name: 'ไส้กรอก', price: 65 },
+      { name: 'เบคอน', price: 70 },
+      { name: 'หมึก', price: 80 },
+      { name: 'กุ้ง', price: 80 },
+      { name: 'หมึก+กุ้ง', price: 95 },
+    ];
+
+    const rawOptions = (item as any).options;
     const hasOptions =
-      (item.options && item.options.length > 0) ||
+      (Array.isArray(rawOptions) && rawOptions.length > 0) ||
       item.name.includes('สปาเก็ตตี้') ||
       item.name.includes('ผัดขี้เมา') ||
       item.name.includes('ผัดพริก') ||
@@ -103,20 +110,19 @@ export default function CustomerHomePage() {
 
     if (hasOptions) {
       const itemOptions =
-        item.options && item.options.length > 0 ? item.options : defaultOptions;
-      setSelectedOptionItem({ ...item, options: itemOptions });
+        Array.isArray(rawOptions) && rawOptions.length > 0 ? rawOptions : defaultOptions;
+      setSelectedOptionItem({ ...item, options: itemOptions } as any);
       setIsOptionModalOpen(true);
       return;
     }
 
-    // Otherwise add directly without option
-    addCartItemWithOption(item, undefined);
+    addCartItemWithOption(item, undefined, undefined);
   };
 
-  const addCartItemWithOption = (item: MenuItemData, option?: string) => {
+  const addCartItemWithOption = (item: MenuItemData, option?: string, optionPrice?: number) => {
     const cartItemId = option ? `${item.id}-${option}` : item.id;
     const displayName = option ? `${item.name} (${option})` : item.name;
-    const defaultOptions = ['ไส้กรอก', 'เบคอน', 'หมึก', 'กุ้ง', 'หมึก+กุ้ง'];
+    const finalPrice = optionPrice !== undefined ? optionPrice : item.price;
 
     setCart((prevCart) => {
       const existing = prevCart.find((ci) => (ci as any).cartItemId === cartItemId || ci.menuItem.id === cartItemId);
@@ -134,7 +140,7 @@ export default function CustomerHomePage() {
             ...item,
             id: cartItemId,
             name: displayName,
-            options: (item.options && item.options.length > 0) ? item.options : defaultOptions,
+            price: finalPrice,
           },
           quantity: 1,
           specialRequest: option ? `เลือก: ${option}` : undefined,
@@ -312,8 +318,8 @@ export default function CustomerHomePage() {
         isOpen={isOptionModalOpen}
         onClose={() => setIsOptionModalOpen(false)}
         item={selectedOptionItem}
-        onConfirm={(item, selectedOption) => {
-          addCartItemWithOption(item, selectedOption);
+        onConfirm={(item, selectedOption, optionPrice) => {
+          addCartItemWithOption(item, selectedOption, optionPrice);
         }}
       />
 
