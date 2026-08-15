@@ -37,7 +37,11 @@ export async function DELETE(_req: Request, { params }: { params: { id: string }
       where: { id },
     });
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
+    // P2025 = record not found (default/fallback items not in DB)
+    if (error?.code === 'P2025') {
+      return NextResponse.json({ success: true, note: 'Item was a default item, removed from view' });
+    }
     console.error('Failed to delete menu item:', error);
     return NextResponse.json({ error: 'Failed to delete menu item' }, { status: 500 });
   }

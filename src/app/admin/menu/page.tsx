@@ -82,8 +82,18 @@ export default function AdminMenuPage() {
         method: 'DELETE',
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (res.ok) {
-        fetchMenu();
+        if (data?.note) {
+          // Default item (not in DB) — just remove from local state
+          setItems((prev) => prev.filter((item) => item.id !== id));
+        } else {
+          // Real DB item — refetch to sync
+          await fetchMenu();
+        }
+      } else {
+        alert('เกิดข้อผิดพลาดในการลบรายการ');
       }
     } catch (err) {
       alert('เกิดข้อผิดพลาดในการลบรายการ');
