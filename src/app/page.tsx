@@ -113,6 +113,7 @@ export default function CustomerHomePage() {
   const addCartItemWithOption = (item: MenuItemData, option?: string) => {
     const cartItemId = option ? `${item.id}-${option}` : item.id;
     const displayName = option ? `${item.name} (${option})` : item.name;
+    const defaultOptions = ['ไส้กรอก', 'เบคอน', 'หมึก', 'กุ้ง', 'หมึก+กุ้ง'];
 
     setCart((prevCart) => {
       const existing = prevCart.find((ci) => (ci as any).cartItemId === cartItemId || ci.menuItem.id === cartItemId);
@@ -130,6 +131,7 @@ export default function CustomerHomePage() {
             ...item,
             id: cartItemId,
             name: displayName,
+            options: (item.options && item.options.length > 0) ? item.options : defaultOptions,
           },
           quantity: 1,
           specialRequest: option ? `เลือก: ${option}` : undefined,

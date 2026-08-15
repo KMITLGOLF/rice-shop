@@ -70,6 +70,15 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, onAddToCart, isStoreOp
               {item.description}
             </p>
           )}
+
+          {/* Available Options Badge */}
+          {((item.options && item.options.length > 0) || item.name.includes('สปาเก็ตตี้') || item.name.includes('ผัด') || item.name.includes('คาโบ')) && (
+            <div className="mt-1.5 flex flex-wrap gap-1">
+              <span className="bg-orange-50 text-orange-700 text-[10px] font-extrabold px-2 py-0.5 rounded-md border border-orange-200">
+                🥩 มีตัวเลือกเนื้อสัตว์ (Choice)
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Price & Add Button */}
