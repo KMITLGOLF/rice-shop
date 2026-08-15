@@ -30,17 +30,30 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
+// IDs of hardcoded default/fallback menu items (not in DB)
+const DEFAULT_ITEM_IDS = new Set([
+  'spaghetti-kee-mao',
+  'spaghetti-chili-garlic',
+  'spaghetti-kra-pao',
+  'spaghetti-carbonara',
+  'm1', 'm2', 'm3', 'm4', 'm5',
+]);
+
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+  const { id } = params;
+
+  // Default items live only in fallback data — no DB row to delete
+  if (DEFAULT_ITEM_IDS.has(id)) {
+    return NextResponse.json({ success: true, note: 'default-item' });
+  }
+
   try {
-    const { id } = params;
-    await prisma.menuItem.delete({
-      where: { id },
-    });
+    await prisma.menuItem.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    // P2025 = record not found (default/fallback items not in DB)
+    // P2025 = record not found in DB either
     if (error?.code === 'P2025') {
-      return NextResponse.json({ success: true, note: 'Item was a default item, removed from view' });
+      return NextResponse.json({ success: true, note: 'not-found' });
     }
     console.error('Failed to delete menu item:', error);
     return NextResponse.json({ error: 'Failed to delete menu item' }, { status: 500 });
