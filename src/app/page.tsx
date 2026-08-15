@@ -87,26 +87,29 @@ export default function CustomerHomePage() {
       return;
     }
 
-    // Determine options: check if item has custom options, or is a noodle/spaghetti dish, or description mentions choice
-    const itemOptions = item.options && item.options.length > 0
-      ? item.options
-      : (
-        item.name.includes('สปาเก็ตตี้') ||
-        item.name.includes('ผัด') ||
-        item.name.includes('ก๋วยเตี๋ยว') ||
-        (item.description && item.description.includes('เลือกเนื้อสัตว์')) ||
-        (item.category?.name && item.category.name.includes('เส้น'))
-      )
-        ? ['ไส้กรอก', 'เบคอน', 'หมึก', 'กุ้ง', 'หมึก+กุ้ง']
-        : null;
+    // Always show option modal if item has options OR matches noodle/spaghetti keywords
+    const defaultOptions = ['ไส้กรอก', 'เบคอน', 'หมึก', 'กุ้ง', 'หมึก+กุ้ง'];
+    const hasOptions =
+      (item.options && item.options.length > 0) ||
+      item.name.includes('สปาเก็ตตี้') ||
+      item.name.includes('ผัดขี้เมา') ||
+      item.name.includes('ผัดพริก') ||
+      item.name.includes('ผัดกะเพรา') ||
+      item.name.includes('คาโบนาร่า') ||
+      item.name.includes('ผัด') ||
+      item.name.includes('ก๋วยเตี๋ยว') ||
+      (item.description && item.description.includes('เลือกเนื้อสัตว์')) ||
+      (item.category?.name && item.category.name.includes('เส้น'));
 
-    if (itemOptions && itemOptions.length > 0) {
+    if (hasOptions) {
+      const itemOptions =
+        item.options && item.options.length > 0 ? item.options : defaultOptions;
       setSelectedOptionItem({ ...item, options: itemOptions });
       setIsOptionModalOpen(true);
       return;
     }
 
-    // Otherwise add directly
+    // Otherwise add directly without option
     addCartItemWithOption(item, undefined);
   };
 

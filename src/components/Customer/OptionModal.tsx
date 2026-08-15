@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Check } from 'lucide-react';
 import { MenuItemData } from './MenuCard';
 
@@ -18,6 +18,11 @@ export const OptionModal: React.FC<OptionModalProps> = ({
   onConfirm,
 }) => {
   const [selectedOption, setSelectedOption] = useState<string>('');
+
+  // Reset selection every time a new item is shown
+  useEffect(() => {
+    setSelectedOption('');
+  }, [item?.id, isOpen]);
 
   if (!isOpen || !item) return null;
 
