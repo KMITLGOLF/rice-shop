@@ -29,6 +29,7 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
   const [price, setPrice] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [optionsStr, setOptionsStr] = useState('');
   const [isAvailable, setIsAvailable] = useState(true);
   const [isRecommended, setIsRecommended] = useState(false);
   const [loading, setLoading] = useState(false);
