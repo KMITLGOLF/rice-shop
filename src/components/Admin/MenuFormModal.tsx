@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, UtensilsCrossed, Save, Loader2, Image as ImageIcon } from 'lucide-react';
+import { X, UtensilsCrossed, Save, Loader2, Image as ImageIcon, Upload } from 'lucide-react';
 import { MenuItemData } from '../Customer/MenuCard';
 
 interface Category {
@@ -32,6 +32,54 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
   const [isAvailable, setIsAvailable] = useState(true);
   const [isRecommended, setIsRecommended] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = event.target?.result as string;
+        const extension = file.name.split('.').pop() || 'jpg';
+        const fileName = `menu-${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${extension}`;
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileBase64: base64,
+            fileName,
+            fileType: file.type,
+          }),
+        });
+
+        if (!uploadRes.ok) {
+          const err = await uploadRes.json();
+          throw new Error(err.error || 'Failed to upload image');
+        }
+
+        const data = await uploadRes.json();
+        if (data.url) {
+          setImageUrl(data.url);
+        }
+        setUploadingImage(false);
+      };
+
+      reader.onerror = () => {
+        alert('เกิดข้อผิดพลาดในการอ่านไฟล์');
+        setUploadingImage(false);
+      };
+
+      reader.readAsDataURL(file);
+    } catch (err: any) {
+      console.error('File upload error:', err);
+      alert('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: ' + (err.message || ''));
+      setUploadingImage(false);
+    }
+  };
 
   useEffect(() => {
     if (initialItem) {
@@ -161,21 +209,66 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">URL รูปภาพอาหาร</label>
-            <div className="flex gap-2">
-              <input
-                type="url"
-                placeholder="https://..."
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                className="flex-1 text-sm bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-500 text-xs font-mono"
-              />
-            </div>
-            {imageUrl && (
-              <div className="mt-2 h-24 w-full bg-gray-100 rounded-xl overflow-hidden border border-gray-200">
-                <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+            <label className="block text-xs font-bold text-gray-700 mb-1">รูปภาพอาหาร</label>
+            <div className="space-y-3">
+              {/* File Upload Button / Drag Drop area */}
+              <div className="flex items-center gap-2">
+                <label className={`flex-1 flex items-center justify-center gap-2 border-2 border-dashed rounded-xl px-4 py-3 cursor-pointer transition-all ${
+                  uploadingImage
+                    ? 'border-orange-300 bg-orange-50/50 text-orange-600'
+                    : 'border-slate-300 hover:border-orange-500 bg-slate-50 hover:bg-orange-50/30 text-slate-600'
+                }`}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    disabled={uploadingImage}
+                    className="hidden"
+                  />
+                  {uploadingImage ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin text-orange-600" />
+                      <span className="text-xs font-bold text-orange-600">กำลังอัปโหลดรูปภาพ...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-5 h-5 text-orange-500" />
+                      <div className="text-left">
+                        <p className="text-xs font-bold text-slate-800">คลิกเพื่อเลือกไฟล์รูปภาพ (Upload File)</p>
+                        <p className="text-[10px] text-slate-400">รองรับไฟล์ JPG, PNG, WEBP</p>
+                      </div>
+                    </>
+                  )}
+                </label>
               </div>
-            )}
+
+              {/* Or enter Direct URL */}
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-500 mb-1">หรือระบุ URL รูปภาพโดยตรง:</label>
+                <input
+                  type="url"
+                  placeholder="https://..."
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  className="w-full text-xs bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-500 font-mono text-slate-700"
+                />
+              </div>
+
+              {imageUrl && (
+                <div className="relative h-36 w-full bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 shadow-inner group">
+                  <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setImageUrl('')}
+                      className="bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-lg hover:bg-rose-700 transition-colors"
+                    >
+                      ลบรูปภาพ
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2">
