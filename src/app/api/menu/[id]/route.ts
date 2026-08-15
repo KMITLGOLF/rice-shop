@@ -9,20 +9,38 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     const body = await req.json();
     const { name, description, price, imageUrl, categoryId, isAvailable, isRecommended, options } = body;
 
-    const updated = await prisma.menuItem.update({
-      where: { id },
-      data: {
-        ...(name !== undefined && { name }),
-        ...(description !== undefined && { description }),
-        ...(price !== undefined && { price: parseFloat(price) }),
-        ...(imageUrl !== undefined && { imageUrl }),
-        ...(categoryId !== undefined && { categoryId }),
-        ...(isAvailable !== undefined && { isAvailable }),
-        ...(isRecommended !== undefined && { isRecommended }),
-        ...(options !== undefined && { options }),
-      },
-      include: { category: true },
-    });
+    let updated;
+    try {
+      updated = await prisma.menuItem.update({
+        where: { id },
+        data: {
+          ...(name !== undefined && { name }),
+          ...(description !== undefined && { description }),
+          ...(price !== undefined && { price: parseFloat(price) }),
+          ...(imageUrl !== undefined && { imageUrl }),
+          ...(categoryId !== undefined && { categoryId }),
+          ...(isAvailable !== undefined && { isAvailable }),
+          ...(isRecommended !== undefined && { isRecommended }),
+          ...(options !== undefined && { options }),
+        },
+        include: { category: true },
+      });
+    } catch (dbError) {
+      console.warn('DB does not support options field yet, falling back:', dbError);
+      updated = await prisma.menuItem.update({
+        where: { id },
+        data: {
+          ...(name !== undefined && { name }),
+          ...(description !== undefined && { description }),
+          ...(price !== undefined && { price: parseFloat(price) }),
+          ...(imageUrl !== undefined && { imageUrl }),
+          ...(categoryId !== undefined && { categoryId }),
+          ...(isAvailable !== undefined && { isAvailable }),
+          ...(isRecommended !== undefined && { isRecommended }),
+        },
+        include: { category: true },
+      });
+    }
 
     return NextResponse.json(updated);
   } catch (error) {

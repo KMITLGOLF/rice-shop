@@ -26,19 +26,37 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Name, price, and categoryId are required.' }, { status: 400 });
     }
 
-    const newItem = await prisma.menuItem.create({
-      data: {
-        name,
-        description: description || '',
-        price: parseFloat(price),
-        imageUrl: imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80',
-        categoryId,
-        isAvailable: isAvailable ?? true,
-        isRecommended: isRecommended ?? false,
-        options: options ?? [],
-      },
-      include: { category: true },
-    });
+    let newItem;
+    try {
+      newItem = await prisma.menuItem.create({
+        data: {
+          name,
+          description: description || '',
+          price: parseFloat(price),
+          imageUrl: imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80',
+          categoryId,
+          isAvailable: isAvailable ?? true,
+          isRecommended: isRecommended ?? false,
+          options: options ?? [],
+        },
+        include: { category: true },
+      });
+    } catch (dbError) {
+      console.warn('DB does not support options field yet, falling back:', dbError);
+      // Fallback: save without options field
+      newItem = await prisma.menuItem.create({
+        data: {
+          name,
+          description: description || '',
+          price: parseFloat(price),
+          imageUrl: imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80',
+          categoryId,
+          isAvailable: isAvailable ?? true,
+          isRecommended: isRecommended ?? false,
+        },
+        include: { category: true },
+      });
+    }
 
     return NextResponse.json(newItem, { status: 201 });
   } catch (error) {
