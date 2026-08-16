@@ -139,9 +139,10 @@ export default function CustomerHomePage() {
           menuItem: {
             ...item,
             id: cartItemId,
+            originalId: item.id,
             name: displayName,
             price: finalPrice,
-          },
+          } as any,
           quantity: 1,
           specialRequest: option ? `เลือก: ${option}` : undefined,
         },

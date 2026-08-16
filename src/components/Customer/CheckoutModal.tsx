@@ -136,13 +136,16 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           totalAmount,
           slipUrl: slipUrlValue,
           paymentMethod,
-          items: cart.map((item) => ({
-            menuItemId: item.menuItem.id,
-            itemName: item.menuItem.name,
-            price: item.menuItem.price,
-            quantity: item.quantity,
-            specialRequest: item.specialRequest || '',
-          })),
+          items: cart.map((item) => {
+            const baseMenuItemId = (item.menuItem as any).originalId || item.menuItem.id.split('-')[0];
+            return {
+              menuItemId: baseMenuItemId,
+              itemName: item.menuItem.name,
+              price: item.menuItem.price,
+              quantity: item.quantity,
+              specialRequest: item.specialRequest || '',
+            };
+          }),
         }),
       });
 
