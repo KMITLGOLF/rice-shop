@@ -8,6 +8,7 @@ export interface MenuItemData {
   name: string;
   description?: string | null;
   price: number;
+  discount?: number;
   imageUrl: string;
   isAvailable: boolean;
   isRecommended: boolean;
@@ -23,6 +24,7 @@ interface MenuCardProps {
 
 export const MenuCard: React.FC<MenuCardProps> = ({ item, onAddToCart, isStoreOpen }) => {
   const canOrder = isStoreOpen && item.isAvailable;
+  const finalPrice = item.price - (item.discount || 0);
 
   return (
     <div
@@ -83,9 +85,23 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, onAddToCart, isStoreOp
 
         {/* Price & Add Button */}
         <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between gap-2">
-          <div className="flex items-baseline gap-0.5">
-            <span className="text-xs font-medium text-gray-400">฿</span>
-            <span className="text-base sm:text-lg font-black text-orange-600">{item.price.toFixed(0)}</span>
+          <div className="flex flex-col items-start justify-center min-h-[36px]">
+            {item.discount && item.discount > 0 ? (
+              <>
+                <span className="text-[10px] font-bold text-gray-400 line-through leading-[1]">
+                  ฿{item.price.toFixed(0)}
+                </span>
+                <div className="flex items-baseline gap-0.5 leading-[1.2]">
+                  <span className="text-xs font-medium text-red-500">฿</span>
+                  <span className="text-base sm:text-lg font-black text-red-600">{finalPrice.toFixed(0)}</span>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-baseline gap-0.5">
+                <span className="text-xs font-medium text-gray-400">฿</span>
+                <span className="text-base sm:text-lg font-black text-orange-600">{item.price.toFixed(0)}</span>
+              </div>
+            )}
           </div>
 
           <button

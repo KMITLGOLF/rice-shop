@@ -48,14 +48,16 @@ export const OptionModal: React.FC<OptionModalProps> = ({
         : (rawOptions as OptionItem[])
       : DEFAULT_OPTIONS;
 
+  const discountAmount = item.discount || 0;
   const selectedObj = options.find((o) => o.name === selectedOption);
+  const selectedFinalPrice = selectedObj ? selectedObj.price - discountAmount : 0;
 
   const handleConfirm = () => {
     if (!selectedOption || !selectedObj) {
       alert('กรุณาเลือกตัวเลือกก่อนยืนยัน');
       return;
     }
-    onConfirm(item, selectedOption, selectedObj.price);
+    onConfirm(item, selectedOption, selectedFinalPrice);
     onClose();
   };
 
@@ -68,7 +70,7 @@ export const OptionModal: React.FC<OptionModalProps> = ({
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-4 text-white">
             <h3 className="font-extrabold text-lg sm:text-xl leading-tight">{item.name}</h3>
             <p className="text-xs text-orange-300 font-bold mt-0.5">
-              {selectedObj ? `฿${selectedObj.price.toFixed(0)}` : `เริ่มต้น ฿${Math.min(...options.map(o => o.price)).toFixed(0)}`}
+              {selectedObj ? `฿${selectedFinalPrice.toFixed(0)}` : `เริ่มต้น ฿${(Math.min(...options.map(o => o.price)) - discountAmount).toFixed(0)}`}
             </p>
           </div>
           <button
@@ -88,6 +90,7 @@ export const OptionModal: React.FC<OptionModalProps> = ({
             <div className="grid grid-cols-2 gap-2">
               {options.map((option) => {
                 const isSelected = selectedOption === option.name;
+                const optionFinalPrice = option.price - discountAmount;
                 return (
                   <button
                     key={option.name}
@@ -100,15 +103,22 @@ export const OptionModal: React.FC<OptionModalProps> = ({
                     }`}
                   >
                     <span>{option.name}</span>
-                    <div className="flex items-center gap-1">
-                      <span className={`text-[11px] font-black ${isSelected ? 'text-orange-600' : 'text-slate-500'}`}>
-                        ฿{option.price}
-                      </span>
-                      {isSelected && (
-                        <span className="w-4 h-4 rounded-full bg-orange-500 text-white flex items-center justify-center text-[10px] ml-1">
-                          <Check className="w-3 h-3 stroke-[3]" />
+                    <div className="flex flex-col items-end gap-0.5">
+                      {discountAmount > 0 && (
+                        <span className="text-[9px] font-bold text-gray-400 line-through leading-none">
+                          ฿{option.price}
                         </span>
                       )}
+                      <div className="flex items-center gap-1">
+                        <span className={`text-[11px] font-black ${isSelected ? (discountAmount > 0 ? 'text-red-600' : 'text-orange-600') : (discountAmount > 0 ? 'text-red-500' : 'text-slate-500')}`}>
+                          ฿{optionFinalPrice}
+                        </span>
+                        {isSelected && (
+                          <span className="w-4 h-4 rounded-full bg-orange-500 text-white flex items-center justify-center text-[10px] ml-1">
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </button>
                 );
@@ -122,7 +132,7 @@ export const OptionModal: React.FC<OptionModalProps> = ({
             className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-extrabold text-sm rounded-2xl shadow-lg shadow-orange-200 active:scale-98 transition-all"
           >
             {selectedObj
-              ? `เพิ่มลงตะกร้า • ฿${selectedObj.price.toFixed(0)}`
+              ? `เพิ่มลงตะกร้า • ฿${selectedFinalPrice.toFixed(0)}`
               : 'เลือกตัวเลือกก่อน'}
           </button>
         </div>

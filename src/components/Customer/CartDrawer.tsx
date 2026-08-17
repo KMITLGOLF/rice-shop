@@ -128,11 +128,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           }}
                           className="w-full text-xs font-bold bg-orange-50 text-orange-900 border border-orange-200 rounded-lg px-2 py-1 focus:outline-none focus:border-orange-500 cursor-pointer"
                         >
-                          {item.menuItem.options.map((opt) => (
-                            <option key={opt.name} value={opt.name}>
-                              🥩 เนื้อสัตว์: {opt.name} {opt.price > 0 ? `(฿${opt.price})` : ''}
-                            </option>
-                          ))}
+                          {item.menuItem.options.map((opt) => {
+                            const optFinalPrice = opt.price - (item.menuItem.discount || 0);
+                            return (
+                              <option key={opt.name} value={opt.name}>
+                                🥩 เนื้อสัตว์: {opt.name} {optFinalPrice > 0 ? `(฿${optFinalPrice})` : ''}
+                              </option>
+                            );
+                          })}
                         </select>
                       </div>
                     )}

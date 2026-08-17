@@ -3,22 +3,25 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-async function ensureOptionsColumn() {
+async function ensureSchemaUpdate() {
   try {
     await prisma.$executeRawUnsafe(
       `ALTER TABLE "MenuItem" ADD COLUMN IF NOT EXISTS options JSONB DEFAULT '[]'::jsonb`
     );
+    await prisma.$executeRawUnsafe(
+      `ALTER TABLE "MenuItem" ADD COLUMN IF NOT EXISTS discount DOUBLE PRECISION DEFAULT 0`
+    );
   } catch (e) {
-    // safe to ignore - column already exists or no permission
+    // safe to ignore - columns already exist or no permission
   }
 }
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  await ensureOptionsColumn();
+  await ensureSchemaUpdate();
   try {
     const { id } = params;
     const body = await req.json();
-    const { name, description, price, imageUrl, categoryId, isAvailable, isRecommended, options } = body;
+    const { name, description, price, imageUrl, categoryId, isAvailable, isRecommended, options, discount } = body;
 
     const updated = await prisma.menuItem.update({
       where: { id },
@@ -31,6 +34,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         ...(isAvailable !== undefined && { isAvailable }),
         ...(isRecommended !== undefined && { isRecommended }),
         ...(options !== undefined && { options }),
+        ...(discount !== undefined && { discount: parseFloat(discount) }),
       },
       include: { category: true },
     });

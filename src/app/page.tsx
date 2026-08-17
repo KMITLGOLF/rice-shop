@@ -122,7 +122,7 @@ export default function CustomerHomePage() {
   const addCartItemWithOption = (item: MenuItemData, option?: string, optionPrice?: number) => {
     const cartItemId = option ? `${item.id}-${option}` : item.id;
     const displayName = option ? `${item.name} (${option})` : item.name;
-    const finalPrice = optionPrice !== undefined ? optionPrice : item.price;
+    const finalPrice = optionPrice !== undefined ? optionPrice : item.price - (item.discount || 0);
 
     setCart((prevCart) => {
       const existing = prevCart.find((ci) => (ci as any).cartItemId === cartItemId || ci.menuItem.id === cartItemId);

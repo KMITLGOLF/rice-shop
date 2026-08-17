@@ -3,19 +3,22 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-// Auto-migrate: add 'options' column to DB if not exists
-async function ensureOptionsColumn() {
+// Auto-migrate: add 'options' and 'discount' columns to DB if not exists
+async function ensureSchemaUpdate() {
   try {
     await prisma.$executeRawUnsafe(
       `ALTER TABLE "MenuItem" ADD COLUMN IF NOT EXISTS options JSONB DEFAULT '[]'::jsonb`
     );
+    await prisma.$executeRawUnsafe(
+      `ALTER TABLE "MenuItem" ADD COLUMN IF NOT EXISTS discount DOUBLE PRECISION DEFAULT 0`
+    );
   } catch (e) {
-    // Column may already exist or DB doesn't support ALTER — safe to ignore
+    // Columns may already exist or DB doesn't support ALTER — safe to ignore
   }
 }
 
 export async function GET() {
-  await ensureOptionsColumn();
+  await ensureSchemaUpdate();
   try {
     const items = await prisma.menuItem.findMany({
       include: { category: true },
@@ -29,10 +32,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  await ensureOptionsColumn();
+  await ensureSchemaUpdate();
   try {
     const body = await req.json();
-    const { name, description, price, imageUrl, categoryId, isAvailable, isRecommended, options } = body;
+    const { name, description, price, imageUrl, categoryId, isAvailable, isRecommended, options, discount } = body;
 
     if (!name || !price || !categoryId) {
       return NextResponse.json({ error: 'Name, price, and categoryId are required.' }, { status: 400 });
@@ -48,6 +51,7 @@ export async function POST(req: Request) {
         isAvailable: isAvailable ?? true,
         isRecommended: isRecommended ?? false,
         options: options ?? [],
+        discount: discount !== undefined ? parseFloat(discount) : 0,
       },
       include: { category: true },
     });

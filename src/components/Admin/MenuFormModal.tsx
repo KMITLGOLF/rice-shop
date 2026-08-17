@@ -27,6 +27,7 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [discount, setDiscount] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [options, setOptions] = useState<Array<{name: string; price: number}>>([]);
@@ -97,6 +98,7 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
       setName(initialItem.name);
       setDescription(initialItem.description || '');
       setPrice(initialItem.price.toString());
+      setDiscount(((initialItem as any).discount || 0).toString());
       setImageUrl(initialItem.imageUrl);
       setCategoryId((initialItem as any).categoryId || categories[0]?.id || '');
       setOptions(parseOptions((initialItem as any).options));
@@ -106,6 +108,7 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
       setName('');
       setDescription('');
       setPrice('');
+      setDiscount('');
       setImageUrl('https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600&auto=format&fit=crop&q=80');
       setCategoryId(categories[0]?.id || '');
       setOptions([]);
@@ -130,6 +133,7 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
         name,
         description,
         price: parseFloat(price),
+        discount: parseFloat(discount || '0'),
         imageUrl,
         categoryId,
         options: options.filter((o) => o.name.trim() !== ''),
@@ -177,7 +181,7 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">
                 ราคา (บาท) <span className="text-red-500">*</span>
@@ -190,6 +194,20 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 className="w-full text-sm bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-500 font-bold text-orange-600"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">
+                ส่วนลด (บาท)
+              </label>
+              <input
+                type="number"
+                step="1"
+                placeholder="0"
+                value={discount}
+                onChange={(e) => setDiscount(e.target.value)}
+                className="w-full text-sm bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-green-500 font-bold text-green-600"
               />
             </div>
 
